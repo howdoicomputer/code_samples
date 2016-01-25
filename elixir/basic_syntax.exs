@@ -174,6 +174,28 @@ end
 
 DefaultArgument.stuff
 
+# Recursion in Elixir is heavily based of pattern matching and the
+# idea of using a base case to stop the recursion.
+#
+# In the first example, the first clause in the recursion module is
+# using a guard to determine when to stop recursion. When the n
+# parameter is less than or equal to 1 then the first declaration of
+# print_multiple_times prints the msg paramter and finishes
+# execution.
+#
+# Because the first declaration of print_multiple_times matched the
+# pattern passed into it via parameters, Elixir has no reason to
+# evaulaute the second clause. The first clause is known as the
+# base case.
+#
+# With the second example, the base case is the second declaration
+# as that matches against an empty list in order to return the
+# accumulator variable.
+#
+# The first clause in the Math module is what will do the heavy work
+# - taking the head and tail of the list, adding the head to an
+# accumulator variable and passing the tail to self as a list to the
+# first paramenter.
 defmodule Recursion do
   def print_multiple_times(msg, n) when n <= 1 do
     IO.puts msg
@@ -186,3 +208,58 @@ defmodule Recursion do
 end
 
 Recursion.print_multiple_times("Hello!", 3)
+
+defmodule Math do
+  def sum_list([head|tail], accumulator) do
+    sum_list(tail, head + accumulator)
+  end
+
+  def sum_list([], accumulator) do
+    accumulator
+  end
+end
+
+IO.inspect Math.sum_list([1, 2, 3], 0)
+
+# For list operations it is not likely that recursion is needed.
+# A call to the Enum module is more syntactically clear.
+
+Enum.reduce([1, 2, 3], 0, fn(x, acc) -> x + acc end)
+
+# The initial docs aren't clear on the &+/ syntax. I think what it
+# does is create an anonymous function adds the first two ar
+#
+#
+Enum.reduce([1, 2, 3], 0, &+/2)
+
+# Remember the anonymous function shorthand? The Enum.map/2 function
+# is taking in the function_declaration(first_argument * n).
+#
+#
+Enum.map([1, 2, 3], &(&1 * 2)) |> IO.inspect
+Enum.map([1, 2, 3], fn(x) -> x * 2 end)
+
+# The Enum.map/2 function with key/value and range examples
+#
+#
+Enum.map(%{1 => 2, 3 => 4}, fn {k, v} -> k * v end)
+Enum.map(1..3, fn x -> x * 2 end)
+
+# Every function in the Enum module is eager so that its results
+# can be passed as intermediate lists following the pipe |> operator
+#
+# The below example takes a large range, pipes to the map function
+# where it every element is multiplied by 3, then that list is
+# piped to a filter function that takes all odd numbers, then that
+# list is piped to a the sum function that sums all the elements.
+#
+#
+odd? = &(rem(&1, 2) != 0)
+1..100_000 |> Enum.map(&(&1 * 3)) |> Enum.filter(odd?) |> Enum.sum
+
+# To achieve lazily evaluated operations on enumerables then the
+# Stream module is your huckleberry
+#
+1..100_000 |> Stream.map(&(&1 * 3)) |> Stream.filter(odd?)
+
+# The above will produce a Stream - which can be evaulated
