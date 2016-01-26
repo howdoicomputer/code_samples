@@ -1,3 +1,9 @@
+# Heavily inspired by submissions from both /u/vzaardan and /u/hutsbotR on
+# /r/DailyProgrammer
+#
+# https://www.reddit.com/r/dailyprogrammer/comments/3hj4o2/20150819_challenge_228_intermediate_use_a_web/
+#
+#
 defmodule Bitcoin do
   @endpoint "http://api.bitcoincharts.com/v1/trades.csv"
 
